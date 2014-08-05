@@ -44,7 +44,8 @@ public class TopicDBSearcher implements TopicSearcher {
 		
 		if(patents.size()==0)
 			patents = null;
-		
+		else
+			System.out.println("Searching (" + topic.text + ") resulted in (" + patents.size() + ") hits.....");
 		return patents;
 	}	
 }
