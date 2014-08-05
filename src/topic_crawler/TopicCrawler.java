@@ -55,7 +55,7 @@ public class TopicCrawler {
 		return result;
 	}
 	static String printUsage() {
-		String usage = "Usage: java -jar topic_indexer.jar " + datasrcPattern + " \"path\" " + patentsLookupModePattern + " db|index " + patentsSrcPattern + " \"path\"";
+		String usage = "Usage: java -jar topic_crawler.jar " + datasrcPattern + " \"path\" " + patentsLookupModePattern + " db|index " + patentsSrcPattern + " \"path\"";
 		return usage;
 	}
 	
