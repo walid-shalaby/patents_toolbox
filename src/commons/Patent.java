@@ -41,6 +41,9 @@ public class Patent {
 	public Patent(final ResultSet rs, int topic_id) {
 		this(rs, topic_id,0.0f);
 	}
+	/* 
+	 * initialize patent from DB record
+	 */
 	public Patent(final ResultSet rs, int topic_id, float score) {
 		String temp;
 		try {
@@ -137,7 +140,43 @@ public class Patent {
 		this.topic_id = topic_id;
 		this.score = score;
 	}
-	
+	/*
+	 * Initialize patent from DB record
+	 */
+	public Patent(final ResultSet rs) {
+		
+		id = getColumn(rs, "id");	
+		title = getColumn(rs, "title");
+		abstract_text = getColumn(rs, "abstract");
+		description = getColumn(rs, "description");
+		claims = getColumn(rs, "claims");
+		main_classification = getColumn(rs, "main_classification");
+		main_class = getColumn(rs, "class");
+		subclass = getColumn(rs, "subclass");
+		further_classification = getColumn(rs, "further_classification");
+		kind = getColumn(rs, "kind");
+		type = getColumn(rs, "type");
+		state = getColumn(rs, "state");
+		assignee = getColumn(rs, "assignee");
+		publication_date = getColumn(rs, "publication_date");
+		claims_statement = getColumn(rs, "claims_statement");			
+		city = getColumn(rs, "city");
+		topic_id = -1;
+		score = 0;
+	}
+	private String getColumn(ResultSet rs, String name) {
+		
+		String result = "";
+		try {
+			result = rs.getString(name);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
 	/*
 	 *  initialize patent from lucene index document
 	 */

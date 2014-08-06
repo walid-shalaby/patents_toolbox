@@ -1,53 +1,49 @@
-/**
- * 
- */
-package topic_indexer;
+package patent_indexer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import commons.Patent;
 import commons.SQLiteDB;
 
 /**
- * @author walid-shalaby
- *
+ * placeholder for each array of all sustainability and resilience related patents in DB
  */
-class Topic {
-	/**
-	 * placeholder for each sustainability and resilience related topic 
-	 */
-	public final int id;
-	public final String text;
-	Topic(int id, String text) {
-		this.id = id;
-		this.text = text;
-		//System.out.println(this.id + "_" + this.text);
-	}
-}
-public class Topics extends ArrayList<Topic>{
+public class DBPatents extends ArrayList<Patent> {
 
-	/**
-	 * placeholder for each array of all sustainability and resilience related topics in DB
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private SQLiteDB db = null;
-	Topics(String datasrcpath) {
+	DBPatents(String datasrcpath) {
 		// connect to the DB
 		db = new SQLiteDB(datasrcpath);
 	}
-	public void load() {
-		// load all topics not previously indexed		
-		PreparedStatement ps = db.prep("select id,topic from topics where id not in (select topic_id from topic_patents)");
+	public void load(HashMap<String, String> columnFieldDic) {
+		// load all patents from DB
+		
+		// determine columns to load
+		Iterator<String> columns = columnFieldDic.keySet().iterator();
+		String stmt = "select ";
+		if(columns.hasNext()==true) {
+			stmt += columns.next();
+			while(columns.hasNext()==true)
+				stmt += "," + columns.next();
+		}
+		stmt += " from patents";
+		PreparedStatement ps = db.prep(stmt);
 		ResultSet rs;
 		try {
 			rs = ps.executeQuery();
 			while (rs.next()) {
-				// create a new topic
-				add(new Topic(rs.getInt(1),rs.getString(2)));
+				// create a new patent
+				add(new Patent(rs));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
