@@ -7,6 +7,7 @@ collection of apps to work with patents data
 ------------------
   - Used to create a DB of resilience and sustainability (R&S) related patents.
   - Reads list of topics related to R&S from DB then search for related patents at lucene index or DB then write retrieved patents data to destination DB
+  - Usage: java -jar topic_crawler.jar --topics-db "path" --patents-lookup-mode db|index --patents-src "path"
   - Dependencies:
     - Apache lucene4.6.0: lucene-core-4.6.0.jar, lucene-analyzers-common-4.6.0.jar, lucene-queries-4.6.0.jar, lucene-queryparser-4.6.0.jar
     - Included: sqlite-jdbc-3.7.2.jar
