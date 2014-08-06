@@ -28,7 +28,7 @@ collection of apps to work with patents data
       - assignee
       - publication_date
       - city
-   - Usage: java -jar patent_indexer.jar --patents-src "path" --patents-index "path" --DBcolunm-Indexfield-tuples {(DBcolumn1:IndexField1),(DBcolumn2:IndexField2),...}
+  - Usage: java -jar patent_indexer.jar --patents-src "path" --patents-index "path" --DBcolunm-Indexfield-tuples {(DBcolumn1:IndexField1),(DBcolumn2:IndexField2),...}
   - Example Usage: --patents-src /home/user/patents.db --patents-index /home/user/patents-index --DBcolunm-Indexfield-tuples "{(id:patent_id),(title:title),(abstract:abstract),(description:description),(claims:claims),(class:class),(subclass:subclass),(further_classification:further_classification),(state:state),(assignee:assignee),(publication_date:publication_date),(city:city)}"
   - Dependencies:
     - Apache lucene4.6.0: lucene-core-4.6.0.jar, lucene-analyzers-common-4.6.0.jar, lucene-queries-4.6.0.jar, lucene-queryparser-4.6.0.jar
