@@ -3,7 +3,7 @@ patents toolbox
 
 collection of apps to work with patents data
 
-1. Topic Searcher
+1. Topic Crawler
 ------------------
   - Used to create a DB of resilience and sustainability (R&S) related patents.
   - Reads list of topics related to R&S from DB then search for related patents at lucene index or DB then write retrieved patents data to destination DB
