@@ -8,17 +8,23 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import commons.PREPROCESS_ENUM;
 import commons.Patent;
 
 /**
  * @author walid-shalaby
  *
  */
+
 public class PatentIndexer {
 
 	static String patentsSrcPath = "";
 	static String colunmFieldTuples = "";
 	static final String patentsSrcPattern = "--patents-src";
+	static final String preprocessPattern = "--preprocess";
+	static PREPROCESS_ENUM e_preprocess = PREPROCESS_ENUM.PREPROCESS_NONE;
+	static final String analyzerPattern = "--analyzer";
+	static String analyzer = "org.apache.lucene.analysis.standard.StandardAnalyzer";
 	static final String columnFieldTuplesPattern = "--DBcolunm-Indexfield-tuples";
 	static String patentsIndxPath = "";
 	static final String patentsIndxPattern = "--patents-index";
@@ -27,20 +33,35 @@ public class PatentIndexer {
 	
 	static boolean parseArgs(String[] args) {
 		boolean result = false;
-		if(args.length==6) {
+		if(args.length>=6) {
 			for(int i=0; i<args.length; i++) {
 				if(args[i].compareTo(columnFieldTuplesPattern)==0 && i+1<args.length)
 					colunmFieldTuples = args[++i];
 				
-				if(args[i].compareTo(patentsSrcPattern)==0 && i+1<args.length)
+				else if(args[i].compareTo(patentsSrcPattern)==0 && i+1<args.length)
 					patentsSrcPath = args[++i];
 				
-				if(args[i].compareTo(patentsIndxPattern)==0 && i+1<args.length)
+				else if(args[i].compareTo(patentsIndxPattern)==0 && i+1<args.length)
 					patentsIndxPath = args[++i];
+				
+				else if(args[i].compareTo(preprocessPattern)==0 && i+1<args.length) {
+					String pre = args[++i];
+					if(pre.compareTo("stem")==0)
+						e_preprocess = PREPROCESS_ENUM.PREPROCESS_STEM;
+					/* TODO: add lemmatization
+					else if (pre.compareTo("lemmatize")==0)					
+						e_preprocess = PREPROCESS_ENUM.PREPROCESS_LEMMATIZE;
+					*/
+					else e_preprocess = PREPROCESS_ENUM.PREPROCESS_UNKNOWN;
+				}
+				
+				if(args[i].compareTo(analyzerPattern)==0 && i+1<args.length)
+					analyzer = args[++i];
 			}
 			if(!colunmFieldTuples.isEmpty() && 
 					!patentsSrcPath.isEmpty() && 
-					parseColumnFieldTuples())
+					parseColumnFieldTuples() && 
+					e_preprocess!=PREPROCESS_ENUM.PREPROCESS_UNKNOWN)
 				result = true;
 		}
 		if(result==false)
@@ -69,7 +90,8 @@ public class PatentIndexer {
 		return result;
 	}
 	static String printUsage() {
-		String usage = "Usage: java -jar patent_indexer.jar " + patentsSrcPattern + " \"path\" " + patentsIndxPattern + " \"path\" " + columnFieldTuplesPattern + " {(DBcolumn1:IndexField1),(DBcolumn2:IndexField2),...}";
+		// TODO: add lemmatization --> String usage = "Usage: java -jar patent_indexer.jar " + patentsSrcPattern + " \"path\" " + patentsIndxPattern + " \"path\" " + "[" + preprocessPattern + " stem|lemmatize] "+ "[" + analyzerPattern + " lucene-analyzer-class]" + columnFieldTuplesPattern + " {(DBcolumn1:IndexField1),(DBcolumn2:IndexField2),...}";
+		String usage = "Usage: java -jar patent_indexer.jar " + patentsSrcPattern + " \"path\" " + patentsIndxPattern + " \"path\" " + "[" + preprocessPattern + " stem] "+ "[" + analyzerPattern + " lucene-analyzer-class]" + columnFieldTuplesPattern + " {(DBcolumn1:IndexField1),(DBcolumn2:IndexField2),...}";
 		return usage;
 	}
 	
@@ -79,15 +101,17 @@ public class PatentIndexer {
 		if(parseArgs(args)) {
 			System.out.println("patents lookup path: "+patentsSrcPath);			
 			System.out.println("patents index path: "+patentsIndxPath);
+			System.out.println("preprocessing: "+e_preprocess);
+			System.out.println("analyzer: "+analyzer);
 			
 			// Initialize the index
 			LuceneIndexer indexer = new LuceneIndexer(patentsIndxPath);
 			try {
-				indexer.init();
+				indexer.init(analyzer, e_preprocess);
 				
 				// load patents from DB
 				DBPatents patents = new DBPatents(patentsSrcPath);
-				patents.load(columnFieldDic);
+				patents.load(columnFieldDic.keySet().iterator());
 				
 				// Dump columns to lucene index
 				indexer.index(patents, columnFieldDic);

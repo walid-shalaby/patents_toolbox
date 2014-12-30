@@ -109,8 +109,15 @@ public class Patent {
 			main_class = subclass = further_classification = "";
 		else {
 			String[] codes = temp.split("\\x1f");
-			main_class = codes[0].substring(0,codes[0].indexOf("/"));
-			subclass = codes[0].substring(codes[0].indexOf("/")+1,codes[0].length());
+			int index = codes[0].indexOf("/");
+			if(index!=-1) {
+				main_class = codes[0].substring(0,codes[0].indexOf("/"));
+				subclass = codes[0].substring(codes[0].indexOf("/")+1,codes[0].length());				
+			}
+			else {
+				main_class = codes[0];
+				subclass = "";
+			}
 			temp = "";
 			if(codes.length>1) {
 				temp = codes[1];

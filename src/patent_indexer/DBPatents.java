@@ -25,11 +25,10 @@ public class DBPatents extends ArrayList<Patent> {
 		// connect to the DB
 		db = new SQLiteDB(datasrcpath);
 	}
-	public void load(HashMap<String, String> columnFieldDic) {
+	public void load(Iterator<String> columns) {
 		// load all patents from DB
 		
 		// determine columns to load
-		Iterator<String> columns = columnFieldDic.keySet().iterator();
 		String stmt = "select ";
 		if(columns.hasNext()==true) {
 			stmt += columns.next();

@@ -18,6 +18,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
+import commons.Concept;
 import commons.Patent;
 
 /**
@@ -48,15 +49,26 @@ public class TopicIndexSearcher implements TopicSearcher {
 		}
 	}
 
-	public ArrayList<Patent> search(Topic topic) {
+	public ArrayList<Patent> search(Concept topic, TopicLookupModeEnum topicLookupMode) {
 		
 		ArrayList<Patent> patents = null;
 		
 		qparser.setAllowLeadingWildcard(true);				
 		Query query;
 		try {
-			// search for topic in patent title field and return search results
-			query = qparser.parse("Title:\""+topic.text+"\"");
+			if(topic.text.charAt(0)=='*' || topic.text.charAt(topic.text.length()-1)=='*')
+				query = qparser.parse("PatentId:"+topic.text+"");
+			else {
+				// search for topic in patent title, abstract, or both fields and return search results
+				if(topicLookupMode==TopicLookupModeEnum.e_TITLE)
+					query = qparser.parse("Title:\""+topic.text+"\"");
+				else if(topicLookupMode==TopicLookupModeEnum.e_ABSTRACT)
+					query = qparser.parse("AbstractText:\""+topic.text+"\"");
+				else if(topicLookupMode==TopicLookupModeEnum.e_TITLE_ABSTRACT)
+					query = qparser.parse("Title:\""+topic.text+"\" OR AbstractText:\""+topic.text+"\"");
+				else
+					query = qparser.parse("\""+topic.text+"\"");
+			}
 			TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
 			System.out.println("Searching (" + query + ") resulted in (" + topDocs.totalHits + ") hits.....");
 			if(topDocs.totalHits > 0) {			

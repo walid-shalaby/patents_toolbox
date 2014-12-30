@@ -2,6 +2,7 @@ package topic_crawler;
 
 import java.util.ArrayList;
 
+import commons.Concept;
 import commons.Patent;
 
 
@@ -11,5 +12,5 @@ import commons.Patent;
  */
 public interface TopicSearcher {
 	
-	public ArrayList<Patent> search(Topic topic);
+	public ArrayList<Patent> search(Concept topic, TopicLookupModeEnum topicLookupMode);
 }

@@ -2,6 +2,7 @@ package patent_indexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -14,24 +15,39 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.tartarus.snowball.ext.PorterStemmer;
 
+import commons.PREPROCESS_ENUM;
 import commons.Patent;
 
 public class LuceneIndexer {
 
 	String indexPath;
 	IndexWriter writer = null;
+	private PREPROCESS_ENUM e_preprocessStep = PREPROCESS_ENUM.PREPROCESS_NONE;
 	
 	public LuceneIndexer(String indexPath) {
 		this.indexPath = indexPath;		
 	}
 
-	public void init() throws IOException {
+	public void init(String analyzer, PREPROCESS_ENUM e_preprocess) throws IOException {
 		Directory dir = FSDirectory.open(new File(indexPath));
-		Analyzer stdAnalyzer = new StandardAnalyzer(Version.LUCENE_46);
-		IndexWriterConfig cfg = new IndexWriterConfig(Version.LUCENE_46, stdAnalyzer);
+		Analyzer indexAnalyzer = null;
+		try {
+			indexAnalyzer = (Analyzer) Class.forName(analyzer).getConstructor(Version.class).newInstance(Version.LUCENE_46);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException
+				| ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//Analyzer indexAnalyzer = new StandardAnalyzer(Version.LUCENE_46);
+		IndexWriterConfig cfg = new IndexWriterConfig(Version.LUCENE_46, indexAnalyzer);
 		cfg.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
 		writer = new IndexWriter(dir, cfg);
+		e_preprocessStep = e_preprocess;
 	}
 
 	public void index(DBPatents patents,
@@ -55,13 +71,37 @@ public class LuceneIndexer {
 						column = "abstract_text";
 					else if(column.compareTo("class")==0)
 						column = "main_class";
-					doc.add(new Field(field, (String)Patent.class.getDeclaredField(column).get(patent), Field.Store.YES, Field.Index.ANALYZED));
+					String data = (String)Patent.class.getDeclaredField(column).get(patent);
+					if(e_preprocessStep==PREPROCESS_ENUM.PREPROCESS_STEM)
+						data = stem(data);
+					/* TODO: add lemmatization
+					else if(e_preprocessStep==PREPROCESS_ENUM.PREPROCESS_LEMMATIZE)
+						data = lemmatize(data);
+					*/
+					
+					doc.add(new Field(field, data, Field.Store.YES, Field.Index.ANALYZED));
 				}
 				writer.addDocument(doc);
 			}
 		}		
 	}
 
+	private String stem(String data) {
+		// TODO Auto-generated method stub
+		PorterStemmer stemmer = new PorterStemmer();
+		stemmer.setCurrent(data);
+		stemmer.stem();
+		return stemmer.getCurrent();
+	}
+
+	/* TODO: add lemmatization
+	private String lemmatize(String data) {
+	
+		// TODO Auto-generated method stub
+		return data;
+	}
+    */
+	
 	public void commit() throws IOException {
 		writer.close();		
 	}

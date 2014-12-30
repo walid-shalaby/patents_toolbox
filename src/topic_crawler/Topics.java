@@ -10,24 +10,12 @@ import java.util.ArrayList;
 
 import commons.Patent;
 import commons.SQLiteDB;
-
+import commons.Concept;
 /**
  * @author walid-shalaby
  *
  */
-class Topic {
-	/**
-	 * placeholder for each sustainability and resilience related topic 
-	 */
-	public final int id;
-	public final String text;
-	Topic(int id, String text) {
-		this.id = id;
-		this.text = text;
-		//System.out.println(this.id + "_" + this.text);
-	}
-}
-public class Topics extends ArrayList<Topic>{
+public class Topics extends ArrayList<Concept>{
 
 	/**
 	 * placeholder for each array of all sustainability and resilience related topics in DB
@@ -40,14 +28,14 @@ public class Topics extends ArrayList<Topic>{
 		db = new SQLiteDB(datasrcpath);
 	}
 	public void load() {
-		// load all topics not previously indexed		
+		// load all topTopicLookupModeEnumics not previously indexed		
 		PreparedStatement ps = db.prep("select id,topic from topics where id not in (select topic_id from topic_patents)");
 		ResultSet rs;
 		try {
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				// create a new topic
-				add(new Topic(rs.getInt(1),rs.getString(2)));
+				add(new Concept(rs.getInt(1),rs.getString(2)));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
